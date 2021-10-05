@@ -50,7 +50,7 @@ class Router
     public function resolve($path_info)
     {
         // 先頭はスラッシュ'/'
-        if ('/' !== substr($pash_info, 0, 1)) {
+        if ('/' !== substr($path_info, 0, 1)) {
             $path_info = '/' . $path_info;
         }
 
