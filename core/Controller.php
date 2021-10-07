@@ -163,7 +163,6 @@ abstract class Controller
     {
         $key = 'csrf_tokens/' . $form_name;
         $tokens = $this->session->get($key, array());
-
         // セッションに一致するトークンが格納されているか判定
         if (false !== ($pos = array_search($token, $tokens, true))) {
             // 1度利用したトークンは削除する

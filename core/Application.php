@@ -234,7 +234,7 @@ abstract class Application
             } else {
                 require_once $controller_file;
 
-                if (!class_exist($controller_class)) {
+                if (!class_exists($controller_class)) {
                     return false;
                 }
             }
