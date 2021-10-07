@@ -3,6 +3,6 @@
 require '../bootstrap.php';
 require '../MiniBlogApplication.php';
 
-// エントリポイント
-$app = new MiniBlogApplication(false);
+// 開発用エントリポイント
+$app = new MiniBlogApplication(true);
 $app->run();
