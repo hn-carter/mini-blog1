@@ -14,7 +14,7 @@ class UserRepository extends DbRepository
     public function insert($user_name, $password)
     {
         // パスワードはハッシュ化してDBに登録
-        $pasword = $this->hashPassword($password);
+        $password = $this->hashPassword($password);
         $now = new DateTime();
 
         $sql = "INSERT INTO user(user_name, password, created_at)
