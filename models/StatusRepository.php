@@ -33,7 +33,7 @@ class StatusRepository extends DbRepository
      */
     public function fetchAllPersonalArchivesByUserId($user_id)
     {
-        $sql = "SELECT a.id, a.user_id, a.body, a.created_at , u.user_name
+        $sql = "SELECT a.id, a.user_id, a.body, a.created_at, u.user_name
                 FROM status a
                     LEFT JOIN user u ON a.user_id = u.id
                 WHERE u.id = :user_id
@@ -41,4 +41,42 @@ class StatusRepository extends DbRepository
         
         return $this->fetchAll($sql, array(':user_id' => $user_id));
     }
+
+    /**
+     * ユーザIDから投稿一覧を取得
+     * 
+     * @param string $user_id
+     * @return array
+     */
+    public function fetchAllByUserId($user_id)
+    {
+        $sql = "SELECT a.id, a.user_id, a.body, a.created_at, u.user_name
+                FROM status a
+                    LEFT JOIN user u ON a.user_id = u.id
+                WHERE u.id = :user_id
+                ORDER BY a.created_at DESC;";
+
+        return $this->fetchAll($sql, array(':user_id' => $user_id));
+    }    
+
+    /**
+     * 投稿IDとユーザ名から投稿を取得
+     * 
+     * @param string $id
+     * @param string $user_name
+     * @return array
+     */
+    public function fetchByIdAndUserName($id, $user_name)
+    {
+        $sql = "SELECT a.id, a.user_id, a.body, a.created_at, u.user_name
+                FROM status a
+                    LEFT JOIN user u ON a.user_id = u.id
+                WHERE a.id = :id
+                  AND u.user_name = :user_name;";
+
+        return $this->fetch($sql, array(
+            ':id' => $id,
+            ':user_name' => $user_name,
+        ));
+    }    
 }
