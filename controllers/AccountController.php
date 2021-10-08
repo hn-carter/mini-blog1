@@ -5,10 +5,13 @@
  */
 class AccountController extends Controller
 {
+
+    protected $auth_actions = array('index', 'signout');
+
     /**
      * アカウント登録
      * 
-     * @return string
+     * @return string 遷移先画面
      */
     public function signupAction()
     {
@@ -21,6 +24,8 @@ class AccountController extends Controller
 
     /**
      * アカウントの入力チェックを行い、DBに新規登録
+     * 
+     * @return string 遷移先画面
      */
     public function registerAction()
     {
@@ -71,5 +76,111 @@ class AccountController extends Controller
             'errors'    => $errors,
             '_token'    => $this->generateCsrfToken('account/signup'),
         ), 'signup');
+    }
+
+    /**
+     * アカウント情報トップ
+     * 
+     * @return string 遷移先画面
+     */
+    public function indexAction()
+    {
+        $user = $this->session->get('user');
+
+        return $this->render(array('user' => $user));
+    }
+
+    /**
+     * ログインアクション
+     * 
+     * @return string 遷移先画面
+     */
+    public function signinAction()
+    {
+        // 既にログインしている場合、アカウント情報トップへリダイレクト
+        if ($this->session->isAuthenticated()) {
+            return $this->redirect('/account');
+        }
+
+        // ログイン画面を返す
+        return $this->render(array(
+            'user_name' => '',
+            'password'  => '',
+            '_token'    => $this->generateCsrfToken('account/signin'),
+        ));
+    }
+
+    /**
+     * ログイン処理
+     * 
+     * @return string 遷移先画面
+     */
+    public function authenticateAction()
+    {
+        // 既にログインしている場合、アカウント情報トップへリダイレクト
+        if ($this->session->isAuthenticated()) {
+            return $this->redirect('/account');
+        }
+
+        if (!$this->request->isPost()) {
+            $this->foward404();
+        }
+
+        $token = $this->request->getPost('_token');
+        if (!$this->checkCsrfToken('account/signin', $token)) {
+            return $this->redirect('/account/signin');
+        }
+
+        $user_name = $this->request->getPost('user_name');
+        $password = $this->request->getPost('password');
+
+        $errors = array();
+
+        if (!strlen($user_name)) {
+            $errors[] = 'ユーザIDを入力してください';
+        }
+
+        if (!strlen($password)) {
+            $errors[] = 'パスワードを入力してください';
+        }
+
+        if (count($errors) === 0) {
+
+            $user_repository = $this->db_manager->get('User');
+            $user = $user_repository->fetchByUserName($user_name);
+
+            // パスワードチェック
+            if (!$user
+                || (!$user_repository->verifyPassword($password, $user['password']))
+            ) {
+                $errors[] = 'ユーザIDかパスワードが不正です';
+            } else {
+                $this->session->setAuthenticated(true);
+                $this->session->set('user', $user);
+
+                return $this->redirect('/');
+            }
+        }
+
+        return $this->render(array(
+            'user_name' => $user_name,
+            'password'  => $password,
+            'errors'    => $errors,
+            '_token'    => $this->generateCsrfToken('account/signin'),
+        ), 'signin');
+    }
+
+    /**
+     * サインアウト（ログアウト）アクション
+     * 
+     * @return string 遷移先画面
+     */
+    public function signoutAction()
+    {
+        // セッション変数をクリアし、認証フラグリセット
+        $this->session->clear();
+        $this->session->setAuthenticated(false);
+
+        return $this->redirect('/account/signin');
     }
 }

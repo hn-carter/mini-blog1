@@ -39,6 +39,18 @@ class UserRepository extends DbRepository
     }
 
     /**
+     * パスワードのハッシュを検証する
+     * 
+     * @param string $password
+     * @param string $hash
+     * @return boolean
+     */
+    public function verifyPassword($password, $hash)
+    {
+        return password_verify($password, $hash);
+    }
+
+    /**
      * ユーザ名からユーザ情報を取得
      * 
      * @param string $user_name 検索ユーザ名
