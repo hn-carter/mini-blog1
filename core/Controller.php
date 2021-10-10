@@ -55,7 +55,7 @@ abstract class Controller
 
         // ログインせずに認証が必要なアクションを呼び出した場合、例外を投げる
         if ($this->needsAuthentication($action) && !$this->session->isAuthenticated()) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedActionException();
         }
 
         // アクションメソッドを呼び出しコンテンツを受け取る
