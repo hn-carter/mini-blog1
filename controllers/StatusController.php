@@ -2,6 +2,7 @@
 
 class StatusController extends Controller
 {
+    // 認証を必要とするアクション
     protected $auth_actions = array('index', 'post');
 
     /**
@@ -91,9 +92,22 @@ class StatusController extends Controller
         $statuses = $this->db_manager->get('Status')
             ->fetchAllByUserId($user['id']);
 
+        $following = null;
+        if ($this->session->isAuthenticated()) {
+            $my = $this->session->get('user');
+            // アクセスしているのが自分自身ならフォローボタンは表示しない
+            if ($my['id'] !== $user['id']) {
+                $following = $this->db_manager->get('Following')
+                    ->isFollowing($my['id'], $user['id']);
+            }
+        }
+
+        // フォロー登録のためCSRFトークンも渡す
         return $this->render(array(
-            'user'     => $user,
-            'statuses' => $statuses,
+            'user'      => $user,
+            'statuses'  => $statuses,
+            'following' => $following,
+            '_token'    => $this->generateCsrfToken('account/follow'),
         ));
     }
 

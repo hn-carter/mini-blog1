@@ -36,7 +36,9 @@ class StatusRepository extends DbRepository
         $sql = "SELECT a.id, a.user_id, a.body, a.created_at, u.user_name
                 FROM status a
                     LEFT JOIN user u ON a.user_id = u.id
-                WHERE u.id = :user_id
+                    LEFT JOIN following f ON f.following_id = a.user_id
+                        AND f.user_id = :user_id
+                WHERE f.user_id = :user_id OR u.id = :user_id
                 ORDER BY a.created_at DESC;";
         
         return $this->fetchAll($sql, array(':user_id' => $user_id));

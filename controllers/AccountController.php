@@ -5,8 +5,8 @@
  */
 class AccountController extends Controller
 {
-
-    protected $auth_actions = array('index', 'signout');
+    // 認証を必要とするアクション
+    protected $auth_actions = array('index', 'signout', 'follow');
 
     /**
      * アカウント登録
@@ -86,8 +86,13 @@ class AccountController extends Controller
     public function indexAction()
     {
         $user = $this->session->get('user');
+        $followings = $this->db_manager->get('User')
+            ->fetchAllFollowingsByUserId($user['id']);
 
-        return $this->render(array('user' => $user));
+        return $this->render(array(
+            'user'       => $user,
+            'followings' => $followings,
+        ));
     }
 
     /**
@@ -182,5 +187,45 @@ class AccountController extends Controller
         $this->session->setAuthenticated(false);
 
         return $this->redirect('/account/signin');
+    }
+
+    /**
+     * フォローアクション
+     * 
+     * @return string 遷移先画面
+     */
+    public function followAction()
+    {
+        if (!$this->request->isPost()) {
+            $this->foward404();
+        }
+
+        $following_name = $this->request->getPost('following_name');
+        if (!$following_name) {
+            $this->foward404();
+        }
+
+        $token = $this->request->getPost('_token');
+        if (!$this->checkCsrfToken('account/follow', $token)) {
+            return $this->redirect('/user/' . $following_name);
+        }
+
+        // フォローしたいユーザの存在確認
+        $follow_user = $this->db_manager->get('User')
+            ->fetchByUserName($following_name);
+        if (!$follow_user) {
+            $this->foward404();
+        }
+
+        $user = $this->session->get('user');
+
+        $following_repository = $this->db_manager->get('Following');
+        // 既にフォロー済みでないかチェック
+        if ($user['id'] !== $follow_user['id']
+            && !$following_repository->isFollowing($user['id'], $follow_user['id'])) {
+            $following_repository->insert($user['id'], $follow_user['id']);
+        }
+
+        return $this->redirect('/account');
     }
 }
