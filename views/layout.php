@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title><?php if (isset($title)): echo $this->escape($title) . ' - ';
         endif; ?>Mini Blog</title>
+    <link href="/web/css/style.css" rel="stylesheet" >
 </head>
 <body>
     <div id="header">
