@@ -54,6 +54,20 @@ www
 └ web ドキュメントルート
 ```
 
+## CSSのアドレス指定
+
+'views/layout.php'ファイルからCSSを参照しています。
+
+```html
+<head>
+    ...
+    <link href="/web/css/style.css" rel="stylesheet" >
+</head>
+```
+
+リンクにはルートからの絶対バスを指定するため、ぞれぞれの環境に合わせて変更してください。
+
+
 ## 書籍「パーフェクト PHP」との違い
 
 使用するデータベースをMySQLからSQLite3に変更しています。
@@ -65,3 +79,4 @@ www
 ## ライセンス
 
 「MIT ライセンス」です。
+
